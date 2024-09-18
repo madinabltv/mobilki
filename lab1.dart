@@ -75,7 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             Text(
               '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium, // Используем headlineMedium
+              style: Theme.of(context).textTheme.headlineMedium, 
             ),
             TextButton(
               style: ButtonStyle(
