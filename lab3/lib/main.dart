@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+
 
 void main() => runApp(MyApp());
 
@@ -57,6 +59,15 @@ class HomeScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => Lab2Screen()),
+                );
+              },
+            ),
+            ListTile(
+              title: Text('Lab 3'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Lab3Screen()),
                 );
               },
             ),
@@ -330,4 +341,155 @@ class Lab2ScreenState extends State<Lab2Screen> {
       ),
     );
   }
+}
+
+class Lab3Screen extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => Lab3ScreenState();
+}
+
+class Lab3ScreenState extends State<Lab3Screen> {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('Animation'),
+        ),
+        body: Center(
+          child: AnimatedCircle(),
+        ),
+      ),
+    );
+  }
+}
+
+class AnimatedCircle extends StatefulWidget {
+  @override
+  _AnimatedCircleState createState() => _AnimatedCircleState();
+}
+
+class _AnimatedCircleState extends State<AnimatedCircle> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+  double _radius = 50.0;
+  Color _circleColor = Colors.blue;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    );
+
+    _animation = Tween<double>(begin: _radius, end: _radius * 3).animate(_controller)
+      ..addListener(() {
+        setState(() {});
+      });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _updateRadius(double value) {
+    setState(() {
+      _radius = value;
+      _animation = Tween<double>(begin: _radius, end: _radius * 3).animate(_controller)
+        ..addListener(() {
+          setState(() {});
+        });
+    });
+  }
+
+  void _startAnimation() {
+    _controller.repeat(reverse: true);
+  }
+
+  void _stopAnimation() {
+    _controller.stop();
+  }
+
+  void _changeColor(Color color) {
+    setState(() {
+      _circleColor = color;
+    });
+  }
+
+  void _openColorPicker() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Выберите цвет'),
+          content: SingleChildScrollView(
+            child: ColorPicker(
+              pickerColor: _circleColor,
+              onColorChanged: _changeColor,
+              showLabel: true,
+              pickerAreaHeightPercent: 0.8,
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('ok'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          width: _animation.value,
+          height: _animation.value,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: _circleColor,
+          ),
+        ),
+        SizedBox(height: 20),
+        Slider(
+          value: _radius,
+          min: 10.0,
+          max: 100.0,
+          divisions: 18,
+          label: _radius.round().toString(),
+          onChanged: _updateRadius,
+        ),
+        SizedBox(height: 20),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: _startAnimation,
+              child: Text('Go'),
+            ),
+            SizedBox(width: 20),
+            ElevatedButton(
+              onPressed: _stopAnimation,
+              child: Text('Stop'),
+            ),
+          ],
+        ),
+        SizedBox(height: 20),
+        ElevatedButton(
+          onPressed: _openColorPicker,
+          child: Text('Поменять цвет'),
+        ),
+      ],
+    );
+  }
+
 }
